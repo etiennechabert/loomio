@@ -201,6 +201,7 @@ Rails.application.routes.draw do
         get :dashboard, on: :collection
         get :inbox, on: :collection
         get :direct, on: :collection
+        post :add_comment, on: :member
       end
 
       resources :discussion_templates, only: [:create, :index, :show, :update, :destroy] do

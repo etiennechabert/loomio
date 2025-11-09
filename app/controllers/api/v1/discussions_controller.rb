@@ -148,6 +148,14 @@ class Api::V1::DiscussionsController < Api::V1::RestfulController
     respond_with_resource
   end
 
+  def add_comment
+    load_and_authorize(:discussion)
+    @comment = Comment.new(permitted_params.comment)
+    @comment.discussion = @discussion
+    @event = CommentService.create(comment: @comment, actor: current_user)
+    render json: MessageChannelService.serialize_models([@event].compact, scope: default_scope)
+  end
+
   private
   def group_ids
     case params[:subgroups]

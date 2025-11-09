@@ -990,5 +990,51 @@ describe Api::V1::DiscussionsController do
         expect(response.status).to eq 403
       end
     end
+
+    describe 'add_comment' do
+      before do
+        group.add_member! user
+        sign_in user
+      end
+
+      let(:comment_params) { { body: 'This is a new comment', body_format: 'md' } }
+
+      context 'success' do
+        it 'creates a comment on the discussion' do
+          expect {
+            post :add_comment, params: { id: discussion.id, comment: comment_params }
+          }.to change { discussion.comments.count }.by(1)
+
+          expect(response.status).to eq 200
+          json = JSON.parse(response.body)
+          expect(json['events']).to be_present
+          expect(json['comments']).to be_present
+          expect(json['comments'][0]['body']).to eq comment_params[:body]
+          expect(json['comments'][0]['discussion_id']).to eq discussion.id
+        end
+
+        it 'sets the discussion_id automatically from the URL' do
+          post :add_comment, params: { id: discussion.id, comment: comment_params }
+          expect(response.status).to eq 200
+          comment = Comment.last
+          expect(comment.discussion_id).to eq discussion.id
+          expect(comment.author_id).to eq user.id
+        end
+      end
+
+      context 'failures' do
+        it 'responds with validation errors when body is blank' do
+          comment_params[:body] = ''
+          post :add_comment, params: { id: discussion.id, comment: comment_params }
+          expect(response.status).to eq 422
+        end
+
+        it 'responds with an error when the user is unauthorized' do
+          sign_in another_user
+          post :add_comment, params: { id: discussion.id, comment: comment_params }
+          expect(response.status).to eq 403
+        end
+      end
+    end
   end
 end
