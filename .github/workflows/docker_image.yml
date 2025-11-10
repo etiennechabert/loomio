@@ -39,7 +39,7 @@ jobs:
       - id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.IMAGE_NAME }}
+          images: wizmoisa/loomio
 
       - name: Build and push multi-platform
         uses: docker/build-push-action@v5
