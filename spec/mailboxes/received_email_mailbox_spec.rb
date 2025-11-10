@@ -28,6 +28,48 @@ RSpec.describe ReceivedEmailMailbox, type: :mailbox do
     expect(ActionMailer::Base.deliveries).to be_empty
   end
 
+  it "decodes RFC 2047 encoded subject headers" do
+    # Create a raw email with RFC 2047 encoded subject
+    # =?UTF-8?Q?R=C3=A9pondre?= should decode to "Répondre"
+    raw_email = Mail.new do
+      from    user.name_and_email
+      to      "#{group.handle}@#{ENV['REPLY_HOSTNAME']}"
+      subject "=?UTF-8?Q?R=C3=A9pondre_=C3=A0_la_discussion?="
+      body    "Test body with encoded subject"
+    end
+
+    expect {
+      receive_inbound_email_from_source(raw_email.to_s)
+    }.to change { Discussion.count }.by(1)
+
+    discussion = Discussion.last
+    email = ReceivedEmail.last
+
+    # Verify the subject is decoded in the headers hash
+    expect(email.headers['Subject']).to eq 'Répondre à la discussion'
+    expect(discussion.title).to eq 'Répondre à la discussion'
+  end
+
+  it "decodes RFC 2047 encoded from headers" do
+    # Test that From header with encoded display name is also decoded
+    # =?UTF-8?Q?Jean_Dupr=C3=A9?= <test@example.com> should decode to "Jean Dupré <test@example.com>"
+    raw_email = Mail.new do
+      from    "=?UTF-8?Q?Jean_Dupr=C3=A9?= <#{user.email}>"
+      to      "#{group.handle}@#{ENV['REPLY_HOSTNAME']}"
+      subject "Test subject"
+      body    "Test body"
+    end
+
+    expect {
+      receive_inbound_email_from_source(raw_email.to_s)
+    }.to change { Discussion.count }.by(1)
+
+    email = ReceivedEmail.last
+
+    # Verify the From header is decoded
+    expect(email.headers['From']).to include 'Jean Dupré'
+  end
+
   # it "forwards specific emails to contact" do
   #   ForwardEmailRule.create(handle: 'support', email: "support@loomio.org")
 
