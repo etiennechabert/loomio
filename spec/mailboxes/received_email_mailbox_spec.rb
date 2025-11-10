@@ -30,11 +30,11 @@ RSpec.describe ReceivedEmailMailbox, type: :mailbox do
 
   it "decodes RFC 2047 encoded subject headers" do
     # Create a raw email with RFC 2047 encoded subject
-    # =?UTF-8?Q?R=C3=A9pondre?= should decode to "Répondre"
+    # =?UTF-8?Q?Caf=C3=A9?= should decode to "Café"
     raw_email = Mail.new do
       from    user.name_and_email
       to      "#{group.handle}@#{ENV['REPLY_HOSTNAME']}"
-      subject "=?UTF-8?Q?R=C3=A9pondre_=C3=A0_la_discussion?="
+      subject "=?UTF-8?Q?Caf=C3=A9_discussion_about_na=C3=AFve_approach?="
       body    "Test body with encoded subject"
     end
 
@@ -46,15 +46,15 @@ RSpec.describe ReceivedEmailMailbox, type: :mailbox do
     email = ReceivedEmail.last
 
     # Verify the subject is decoded in the headers hash
-    expect(email.headers['Subject']).to eq 'Répondre à la discussion'
-    expect(discussion.title).to eq 'Répondre à la discussion'
+    expect(email.headers['Subject']).to eq 'Café discussion about naïve approach'
+    expect(discussion.title).to eq 'Café discussion about naïve approach'
   end
 
   it "decodes RFC 2047 encoded from headers" do
     # Test that From header with encoded display name is also decoded
-    # =?UTF-8?Q?Jean_Dupr=C3=A9?= <test@example.com> should decode to "Jean Dupré <test@example.com>"
+    # =?UTF-8?Q?Bj=C3=B6rk?= <test@example.com> should decode to "Björk <test@example.com>"
     raw_email = Mail.new do
-      from    "=?UTF-8?Q?Jean_Dupr=C3=A9?= <#{user.email}>"
+      from    "=?UTF-8?Q?Bj=C3=B6rk?= <#{user.email}>"
       to      "#{group.handle}@#{ENV['REPLY_HOSTNAME']}"
       subject "Test subject"
       body    "Test body"
@@ -67,7 +67,7 @@ RSpec.describe ReceivedEmailMailbox, type: :mailbox do
     email = ReceivedEmail.last
 
     # Verify the From header is decoded
-    expect(email.headers['From']).to include 'Jean Dupré'
+    expect(email.headers['From']).to include 'Björk'
   end
 
   # it "forwards specific emails to contact" do
