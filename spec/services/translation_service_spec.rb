@@ -71,8 +71,8 @@ describe 'TranslationService' do
             expect(options[:format]).to be_nil
             'Test Titel'
           else
-            # Description field with HTML format
-            expect(content).to include('<h1>')
+            # Description field with HTML format - check for HTML elements (may have attributes like id)
+            expect(content).to match(/<h1[^>]*>/)
             expect(content).to include('<strong>')
             expect(options[:format]).to eq('html')
             '<h1>Überschrift</h1><p><strong>Fetter Text</strong></p>'
