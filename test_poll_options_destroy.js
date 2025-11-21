@@ -33,7 +33,7 @@ function mapKeys(obj, fn) {
 // Simulate poll options with _destroy flag (using actual poll option fields)
 const pollOptions = [
   { id: 1, name: 'Option 1', testOperator: 'greater_than', testPercent: 50 },
-  { id: 2, name: 'Option 2', testOperator: 'less_than', testPercent: 25, _destroy: 1 }
+  { id: 2, name: 'Option 2', testOperator: 'less_than', testPercent: 25, _destroy: 1, _customField: 'test' }
 ];
 
 console.log('Testing poll options transformation\n');
@@ -45,30 +45,34 @@ const buggyTransform = pollOptions.map((o) => mapKeys(o, (_, k) => snakeCase(k))
 console.log('Result:', JSON.stringify(buggyTransform, null, 2));
 
 const option2Buggy = buggyTransform[1];
-if (option2Buggy.destroy !== undefined) {
-  console.log('❌ BUG CONFIRMED: _destroy was converted to "destroy"');
+if (option2Buggy.destroy !== undefined || option2Buggy.custom_field !== undefined) {
+  console.log('❌ BUG CONFIRMED: underscore-prefixed keys were converted');
+  console.log('   _destroy → destroy, _customField → custom_field');
   console.log('   This causes Rails error: "found unpermitted parameter: :destroy"');
-} else if (option2Buggy._destroy !== undefined) {
-  console.log('✓ _destroy was preserved correctly');
+} else if (option2Buggy._destroy !== undefined && option2Buggy._customField !== undefined) {
+  console.log('✓ All underscore-prefixed keys preserved correctly');
 }
 
-// FIX: Preserve _destroy key
-console.log('\n--- FIX: Transformation with _destroy preserved ---');
-const fixedTransform = pollOptions.map((o) => mapKeys(o, (_, k) => k === '_destroy' ? k : snakeCase(k)));
+// FIX: Preserve all underscore-prefixed keys
+console.log('\n--- FIX: Transformation with underscore-prefixed keys preserved ---');
+const fixedTransform = pollOptions.map((o) => mapKeys(o, (_, k) => k.startsWith('_') ? k : snakeCase(k)));
 console.log('Result:', JSON.stringify(fixedTransform, null, 2));
 
 const option2Fixed = fixedTransform[1];
-if (option2Fixed._destroy !== undefined && option2Fixed.destroy === undefined) {
-  console.log('✅ FIX VERIFIED: _destroy is preserved correctly');
-  console.log('   Rails will now accept this parameter!');
+if (option2Fixed._destroy !== undefined && option2Fixed._customField !== undefined &&
+    option2Fixed.destroy === undefined && option2Fixed.custom_field === undefined) {
+  console.log('✅ FIX VERIFIED: All underscore-prefixed keys preserved correctly');
+  console.log('   Rails will now accept these parameters!');
 } else {
   console.log('❌ Fix did not work as expected');
 }
 
 // Summary
 console.log('\n--- SUMMARY ---');
-console.log('The bug occurred because lodash snakeCase("_destroy") returns "destroy"');
-console.log('The fix checks if key === "_destroy" before applying snakeCase()');
-console.log('\nTest keys:');
+console.log('The bug occurred because lodash snakeCase() removes leading underscores');
+console.log('The fix preserves ANY key starting with underscore (not just _destroy)');
+console.log('\nTest transformations:');
 console.log(`  snakeCase("_destroy") = "${snakeCase("_destroy")}"  ❌ Wrong!`);
 console.log(`  "_destroy" (preserved) = "_destroy"  ✅ Correct!`);
+console.log(`  snakeCase("_customField") = "${snakeCase("_customField")}"  ❌ Wrong!`);
+console.log(`  "_customField" (preserved) = "_customField"  ✅ Correct!`);
