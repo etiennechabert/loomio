@@ -25,7 +25,7 @@ export default class ThreadLoader {
     this.collapsed = reactive({});
     this.loading = false;
     this.firstLoad = false
-    this.padding = 25;
+    this.padding = AppConfig.features.app.thread_padding;
   }
 
   clearRules() {
