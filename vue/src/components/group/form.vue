@@ -120,11 +120,6 @@ export default
   },
 
   watch: {
-    'group.groupPrivacy'(val) {
-      if (this.group.groupPrivacy != 'open' && this.group.membershipGrantedUpon == 'request') {
-        this.group.membershipGrantedUpon = 'approval';
-      }
-    }
   },
 
   computed: {
@@ -133,11 +128,7 @@ export default
     },
 
     membershipGrantedUponOptions() {
-      if (this.group.groupPrivacy == 'open') {
-        return ['request', 'approval', 'invitation']
-      } else {
-        return ['approval', 'invitation']
-      }
+      return ['request', 'approval', 'invitation']
     },
 
     actionName() {
