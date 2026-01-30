@@ -20,7 +20,7 @@ RSpec.describe TranslationProviders::Google do
       expect(google_service).to receive(:translate).with('Hello', to: 'fr', format: :text).and_return('Bonjour')
 
       provider = TranslationProviders::Google.new
-      result = provider.translate('Hello', from: 'en', to: 'fr', format: :text)
+      result = provider.translate('Hello', to: 'fr', format: :text)
 
       expect(result).to eq 'Bonjour'
     end
@@ -31,7 +31,7 @@ RSpec.describe TranslationProviders::Google do
       expect(google_service).to receive(:translate).with('<p>Hello</p>', to: 'fr', format: :html).and_return('<p>Bonjour</p>')
 
       provider = TranslationProviders::Google.new
-      result = provider.translate('<p>Hello</p>', from: 'en', to: 'fr', format: :html)
+      result = provider.translate('<p>Hello</p>', to: 'fr', format: :html)
 
       expect(result).to eq '<p>Bonjour</p>'
     end

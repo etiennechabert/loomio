@@ -109,7 +109,7 @@ class TranslationService
     model.class.translatable_fields.each do |field|
       content = model.send(field)
 
-      translate_options = { to: to, format: :text, from: from_locale }
+      translate_options = { to: to, format: :text }
 
       if content.blank?
         fields[field.to_s] = nil

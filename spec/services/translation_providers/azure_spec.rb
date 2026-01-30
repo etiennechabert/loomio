@@ -33,7 +33,7 @@ RSpec.describe TranslationProviders::Azure do
         )
         .to_return(status: 200, body: api_response)
 
-      result = provider.translate('Hello', from: 'en', to: 'fr', format: :text)
+      result = provider.translate('Hello', to: 'fr', format: :text)
 
       expect(result).to eq 'Bonjour'
     end
@@ -51,7 +51,7 @@ RSpec.describe TranslationProviders::Azure do
         )
         .to_return(status: 200, body: api_response)
 
-      provider.translate('Hello', from: 'en', to: 'fr', format: :text)
+      provider.translate('Hello', to: 'fr', format: :text)
     end
 
     it 'supports HTML format' do
@@ -59,21 +59,27 @@ RSpec.describe TranslationProviders::Azure do
         .with(body: [{ 'Text' => '<p>Hello</p>' }].to_json)
         .to_return(status: 200, body: [{ 'translations' => [{ 'text' => '<p>Bonjour</p>' }] }].to_json)
 
-      result = provider.translate('<p>Hello</p>', from: 'en', to: 'fr', format: :html)
+      result = provider.translate('<p>Hello</p>', to: 'fr', format: :html)
 
       expect(result).to eq '<p>Bonjour</p>'
     end
   end
 
   describe '#normalize_locale' do
-    it 'converts underscore to hyphen and returns base language' do
+    it 'converts underscore to hyphen' do
       provider = TranslationProviders::Azure.new
-      expect(provider.normalize_locale('zh_CN')).to eq 'zh'
+      expect(provider.normalize_locale('fr_CA')).to eq 'fr-ca'
     end
 
-    it 'returns base language for locale variants' do
+    it 'returns locale if it is in SUPPORTED_LOCALES' do
       provider = TranslationProviders::Azure.new
-      expect(provider.normalize_locale('fr-CA')).to eq 'fr'
+      expect(provider.normalize_locale('fr')).to eq 'fr'
+      expect(provider.normalize_locale('fr-CA')).to eq 'fr-ca'
+    end
+
+    it 'returns base language for unsupported variants' do
+      provider = TranslationProviders::Azure.new
+      expect(provider.normalize_locale('fr-BE')).to eq 'fr'
     end
   end
 end

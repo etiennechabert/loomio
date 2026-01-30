@@ -1,6 +1,6 @@
 module TranslationProviders
   class Base
-    def translate(content, from:, to:, format: :text)
+    def translate(content, to:, format: :text)
       raise NotImplementedError
     end
 

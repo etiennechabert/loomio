@@ -8,7 +8,7 @@ module TranslationProviders
       ENV['TRANSLATE_CREDENTIALS'].present?
     end
 
-    def translate(content, from:, to:, format: :text)
+    def translate(content, to:, format: :text)
       service = ::Google::Cloud::Translate.translation_v2_service
       service.translate(content, to: to, format: format)
     end
