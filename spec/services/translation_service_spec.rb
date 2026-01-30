@@ -76,6 +76,7 @@ RSpec.describe TranslationService do
 
       it 'uses the Rails I18n translation and does not call provider' do
         provider = double('TranslationProvider')
+        allow(provider).to receive(:normalize_locale).and_return('fr')
         allow(TranslationService).to receive(:provider).and_return(provider)
         expect(provider).not_to receive(:translate)
 
@@ -98,6 +99,7 @@ RSpec.describe TranslationService do
 
       it 'falls back to translation provider' do
         provider = double('TranslationProvider')
+        allow(provider).to receive(:normalize_locale).and_return('fr')
         allow(TranslationService).to receive(:provider).and_return(provider)
         expect(provider).to receive(:translate).with('Plan X', hash_including(to: 'fr', format: :text)).and_return('Plan X FR')
 

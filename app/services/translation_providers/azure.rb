@@ -10,7 +10,7 @@ module TranslationProviders
       ENV['AZURE_TRANSLATOR_KEY'].present?
     end
 
-    def translate(content, from:, to:, format: :text)
+    def translate(content, to:, format: :text)
       uri = build_uri(to, format)
       request = build_request(uri, content)
       response = execute_request(uri, request)
