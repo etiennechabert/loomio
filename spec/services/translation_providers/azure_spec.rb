@@ -3,11 +3,13 @@ require 'rails_helper'
 RSpec.describe TranslationProviders::Azure do
   describe '.available?' do
     it 'returns true when AZURE_TRANSLATOR_KEY is set' do
+      allow(ENV).to receive(:[]).and_call_original
       allow(ENV).to receive(:[]).with('AZURE_TRANSLATOR_KEY').and_return('test-key')
       expect(TranslationProviders::Azure.available?).to eq true
     end
 
     it 'returns false when AZURE_TRANSLATOR_KEY is not set' do
+      allow(ENV).to receive(:[]).and_call_original
       allow(ENV).to receive(:[]).with('AZURE_TRANSLATOR_KEY').and_return(nil)
       expect(TranslationProviders::Azure.available?).to eq false
     end
@@ -18,6 +20,7 @@ RSpec.describe TranslationProviders::Azure do
     let(:api_response) { [{ 'translations' => [{ 'text' => 'Bonjour', 'to' => 'fr' }] }].to_json }
 
     before do
+      allow(ENV).to receive(:[]).and_call_original
       allow(ENV).to receive(:[]).with('AZURE_TRANSLATOR_KEY').and_return('test-key')
       allow(ENV).to receive(:[]).with('AZURE_TRANSLATOR_REGION').and_return(nil)
     end
@@ -39,6 +42,8 @@ RSpec.describe TranslationProviders::Azure do
     end
 
     it 'includes region header when AZURE_TRANSLATOR_REGION is set' do
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('AZURE_TRANSLATOR_KEY').and_return('test-key')
       allow(ENV).to receive(:[]).with('AZURE_TRANSLATOR_REGION').and_return('eastus')
 
       stub_request(:post, "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=fr")

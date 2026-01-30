@@ -19,7 +19,7 @@ module TranslationProviders
 
     def normalize_locale(locale)
       locale = locale.to_s.downcase.gsub("_", "-")
-      return locale if SUPPORTED_LOCALES.include?(locale)
+      return locale if SUPPORTED_LOCALES.map(&:downcase).include?(locale)
       locale.split("-")[0]
     end
   end
