@@ -4,7 +4,7 @@ require 'json'
 module TranslationProviders
   class Azure < Base
     ENDPOINT = 'https://api.cognitive.microsofttranslator.com'
-    SUPPORTED_LOCALES = %w[af am ar as az ba be bg bho bn bo brx bs ca cs cy da de doi dsb dv el en es et eu fa fi fil fj fo fr fr-CA ga gl gom gu ha he hi hne hr hsb ht hu hy id ig ikt is it iu iu-Latn ja ka kk km kmr kn ko ks ku ky lb ln lo lt lug lv lzh mai mg mi mk ml mn-Cyrl mn-Mong mni mr ms mt mww my nb ne nl nso nya or otq pa pl prs ps pt pt-PT ro ru run rw sd si sk sl sm sn so sq sr-Cyrl sr-Latn st sv sw ta te th ti tk tlh-Latn tlh-Piqd tn to tr tt ty ug uk ur uz vi xh yo yua yue zh-Hans zu]
+    SUPPORTED_LOCALES = %w[af am ar as az ba be bg bho bn bo brx bs ca cs cy da de doi dsb dv el en es et eu fa fi fil fj fo fr fr-ca ga gl gom gu ha he hi hne hr hsb ht hu hy id ig ikt is it iu iu-latn ja ka kk km kmr kn ko ks ku ky lb ln lo lt lug lv lzh mai mg mi mk ml mn-cyrl mn-mong mni mr ms mt mww my nb ne nl nso nya or otq pa pl prs ps pt pt-pt ro ru run rw sd si sk sl sm sn so sq sr-cyrl sr-latn st sv sw ta te th ti tk tlh-latn tlh-piqd tn to tr tt ty ug uk ur uz vi xh yo yua yue zh-hans zu]
 
     def self.available?
       ENV['AZURE_TRANSLATOR_KEY'].present?
