@@ -69,7 +69,7 @@ RSpec.describe TranslationService do
         # Provide translations under a wildcard-able namespace:
         # KNOWN_I18N_LABEL_KEYS includes "poll_proposal_options.*"
         I18n.backend.store_translations(:en, poll_proposal_options: { agree: 'Agree' })
-        I18n.backend.store_translations(:fr, poll_proposal_options: { agree: "D'accord" })
+        I18n.backend.store_translations(:fr, poll_proposal_options: { agree: "D’accord" })
 
         allow(TranslationProviders::Google).to receive(:available?).and_return(true)
       end
@@ -84,7 +84,7 @@ RSpec.describe TranslationService do
 
         expect(translation).to be_persisted
         expect(translation.language).to eq 'fr'
-        expect(translation.fields['name']).to eq "D'accord"
+        expect(translation.fields['name']).to eq "D’accord"
         expect(translation.fields['meaning']).to be_nil
         expect(translation.fields['prompt']).to be_nil
       end
