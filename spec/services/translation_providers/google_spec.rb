@@ -1,0 +1,56 @@
+require 'rails_helper'
+
+RSpec.describe TranslationProviders::Google do
+  describe '.available?' do
+    it 'returns true when TRANSLATE_CREDENTIALS is set' do
+      allow(ENV).to receive(:[]).with('TRANSLATE_CREDENTIALS').and_return('credentials')
+      expect(TranslationProviders::Google.available?).to eq true
+    end
+
+    it 'returns false when TRANSLATE_CREDENTIALS is not set' do
+      allow(ENV).to receive(:[]).with('TRANSLATE_CREDENTIALS').and_return(nil)
+      expect(TranslationProviders::Google.available?).to eq false
+    end
+  end
+
+  describe '#translate' do
+    it 'calls Google Cloud Translate service' do
+      google_service = double('GoogleTranslateService')
+      allow(Google::Cloud::Translate).to receive(:translation_v2_service).and_return(google_service)
+      expect(google_service).to receive(:translate).with('Hello', to: 'fr', format: :text).and_return('Bonjour')
+
+      provider = TranslationProviders::Google.new
+      result = provider.translate('Hello', from: 'en', to: 'fr', format: :text)
+
+      expect(result).to eq 'Bonjour'
+    end
+
+    it 'supports HTML format' do
+      google_service = double('GoogleTranslateService')
+      allow(Google::Cloud::Translate).to receive(:translation_v2_service).and_return(google_service)
+      expect(google_service).to receive(:translate).with('<p>Hello</p>', to: 'fr', format: :html).and_return('<p>Bonjour</p>')
+
+      provider = TranslationProviders::Google.new
+      result = provider.translate('<p>Hello</p>', from: 'en', to: 'fr', format: :html)
+
+      expect(result).to eq '<p>Bonjour</p>'
+    end
+  end
+
+  describe '#normalize_locale' do
+    it 'converts underscore to hyphen' do
+      provider = TranslationProviders::Google.new
+      expect(provider.normalize_locale('zh_CN')).to eq 'zh-cn'
+    end
+
+    it 'returns locale if it is in SUPPORTED_LOCALES' do
+      provider = TranslationProviders::Google.new
+      expect(provider.normalize_locale('fr')).to eq 'fr'
+    end
+
+    it 'returns base language for unsupported variants' do
+      provider = TranslationProviders::Google.new
+      expect(provider.normalize_locale('fr-CA')).to eq 'fr'
+    end
+  end
+end
