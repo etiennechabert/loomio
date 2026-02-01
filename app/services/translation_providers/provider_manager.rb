@@ -21,7 +21,7 @@ module TranslationProviders
     private
 
     def configured_providers
-      provider_names = ENV.fetch('TRANSLATION_PROVIDERS', 'azure,google').split(',').map(&:strip)
+      provider_names = ENV['TRANSLATION_PROVIDERS']&.split(',')&.map(&:strip) || %w[google azure]
 
       provider_names.map do |name|
         klass = "TranslationProviders::#{name.classify}".constantize
