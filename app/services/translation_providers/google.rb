@@ -11,6 +11,11 @@ module TranslationProviders
     def translate(content, to:, format: :text)
       service = ::Google::Cloud::Translate.translation_v2_service
       service.translate(content, to: to, format: format)
+    rescue Google::Cloud::Error => e
+      if e.message.to_s.downcase.include?('quota') || e.class.name.include?('QuotaExceeded')
+        raise TranslationService::QuotaExceededError, "Google quota exceeded"
+      end
+      raise
     end
 
     def supported_languages
@@ -21,6 +26,10 @@ module TranslationProviders
       locale = locale.to_s.downcase.gsub("_", "-")
       return locale if SUPPORTED_LOCALES.map(&:downcase).include?(locale)
       locale.split("-")[0]
+    end
+
+    def quota_error?(error)
+      error.is_a?(TranslationService::QuotaExceededError)
     end
   end
 end
