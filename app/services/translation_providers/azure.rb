@@ -59,9 +59,5 @@ module TranslationProviders
 
       JSON.parse(response.body)[0]['translations'][0]['text']
     end
-
-    def quota_error?(error)
-      error.is_a?(TranslationService::QuotaExceededError)
-    end
   end
 end

@@ -27,9 +27,5 @@ module TranslationProviders
       return locale if SUPPORTED_LOCALES.map(&:downcase).include?(locale)
       locale.split("-")[0]
     end
-
-    def quota_error?(error)
-      error.is_a?(TranslationService::QuotaExceededError)
-    end
   end
 end

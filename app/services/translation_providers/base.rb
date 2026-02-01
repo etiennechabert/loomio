@@ -12,10 +12,6 @@ module TranslationProviders
       []
     end
 
-    def quota_error?(error)
-      false
-    end
-
     def self.provider_name
       name.demodulize.downcase
     end
