@@ -67,7 +67,9 @@ class TranslationService
 
   def self.provider
     @provider ||= begin
-      if TranslationProviders::Azure.available?
+      if TranslationProviders::Deepl.available?
+        TranslationProviders::Deepl.new
+      elsif TranslationProviders::Azure.available?
         TranslationProviders::Azure.new
       elsif TranslationProviders::Google.available?
         TranslationProviders::Google.new
