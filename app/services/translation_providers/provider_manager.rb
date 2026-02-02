@@ -10,12 +10,12 @@ module TranslationProviders
     end
 
     def mark_provider_exhausted(provider)
-      @exhausted_providers[provider.class.provider_name] = Date.current.utc.to_s
-      Rails.logger.warn "#{provider.class.name} quota exhausted for #{Date.current.utc}"
+      @exhausted_providers[provider.class.provider_name] = Date.current.to_s
+      Rails.logger.warn "#{provider.class.name} quota exhausted for #{Date.current}"
     end
 
     def provider_exhausted?(provider)
-      @exhausted_providers[provider.class.provider_name] == Date.current.utc.to_s
+      @exhausted_providers[provider.class.provider_name] == Date.current.to_s
     end
 
     private
