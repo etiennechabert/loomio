@@ -6,32 +6,33 @@ RSpec.describe TranslationService do
       TranslationService.instance_variable_set(:@provider, nil)
     end
 
-    it 'prefers Azure when available' do
+    it 'prefers DeepL when available' do
+      allow(TranslationProviders::Deepl).to receive(:available?).and_return(true)
       allow(TranslationProviders::Azure).to receive(:available?).and_return(true)
       allow(TranslationProviders::Google).to receive(:available?).and_return(true)
+
+      provider = TranslationService.provider
+
+      expect(provider).to be_a(TranslationProviders::Deepl)
+    end
+
+    it 'uses Azure when DeepL is not available' do
+      allow(TranslationProviders::Deepl).to receive(:available?).and_return(false)
+      allow(TranslationProviders::Azure).to receive(:available?).and_return(true)
 
       provider = TranslationService.provider
 
       expect(provider).to be_a(TranslationProviders::Azure)
     end
 
-    it 'uses Google when Azure is not available' do
+    it 'uses Google when DeepL and Azure are not available' do
+      allow(TranslationProviders::Deepl).to receive(:available?).and_return(false)
       allow(TranslationProviders::Azure).to receive(:available?).and_return(false)
       allow(TranslationProviders::Google).to receive(:available?).and_return(true)
 
       provider = TranslationService.provider
 
       expect(provider).to be_a(TranslationProviders::Google)
-    end
-
-    it 'uses DeepL when Azure and Google are not available' do
-      allow(TranslationProviders::Azure).to receive(:available?).and_return(false)
-      allow(TranslationProviders::Google).to receive(:available?).and_return(false)
-      allow(TranslationProviders::Deepl).to receive(:available?).and_return(true)
-
-      provider = TranslationService.provider
-
-      expect(provider).to be_a(TranslationProviders::Deepl)
     end
 
     it 'returns nil when no provider is available' do
