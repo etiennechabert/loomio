@@ -71,6 +71,8 @@ class TranslationService
         TranslationProviders::Azure.new
       elsif TranslationProviders::Google.available?
         TranslationProviders::Google.new
+      elsif TranslationProviders::Watson.available?
+        TranslationProviders::Watson.new
       end
     end
   end
