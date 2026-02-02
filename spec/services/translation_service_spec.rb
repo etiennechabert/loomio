@@ -4,6 +4,7 @@ RSpec.describe TranslationService do
   describe '.provider' do
     before do
       TranslationService.instance_variable_set(:@provider, nil)
+      TranslationService.instance_variable_set(:@provider_manager, nil)
     end
 
     it 'prefers Azure when available' do
