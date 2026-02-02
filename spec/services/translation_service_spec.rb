@@ -4,6 +4,7 @@ RSpec.describe TranslationService do
   describe '.provider' do
     before do
       TranslationService.instance_variable_set(:@provider, nil)
+      TranslationService.instance_variable_set(:@provider_manager, nil)
     end
 
     it 'prefers Azure when available' do
@@ -111,6 +112,47 @@ RSpec.describe TranslationService do
         expect(translation.fields['meaning']).to be_nil
         expect(translation.fields['prompt']).to be_nil
       end
+    end
+  end
+
+  describe 'provider fallback' do
+    it 'falls back to next provider when quota exhausted' do
+      allow(TranslationProviders::Azure).to receive(:available?).and_return(true)
+      allow(TranslationProviders::Google).to receive(:available?).and_return(true)
+      TranslationService.instance_variable_set(:@provider_manager, nil)
+
+      azure = TranslationProviders::Azure.new
+      google = TranslationProviders::Google.new
+
+      allow(TranslationProviders::Azure).to receive(:new).and_return(azure)
+      allow(TranslationProviders::Google).to receive(:new).and_return(google)
+
+      allow(azure).to receive(:translate).and_raise(TranslationService::QuotaExceededError)
+      allow(google).to receive(:translate).with('Hello', to: 'fr', format: :text).and_return('Bonjour')
+      allow(azure).to receive(:normalize_locale).and_return('fr')
+      allow(google).to receive(:normalize_locale).and_return('fr')
+
+      result = TranslationService.attempt_translation_with_fallback('Hello', to: 'fr', format: :text)
+      expect(result).to eq 'Bonjour'
+    end
+
+    it 'raises AllProvidersExhaustedError when all providers exhausted' do
+      allow(TranslationProviders::Azure).to receive(:available?).and_return(true)
+      allow(TranslationProviders::Google).to receive(:available?).and_return(true)
+      TranslationService.instance_variable_set(:@provider_manager, nil)
+
+      azure = TranslationProviders::Azure.new
+      google = TranslationProviders::Google.new
+
+      allow(TranslationProviders::Azure).to receive(:new).and_return(azure)
+      allow(TranslationProviders::Google).to receive(:new).and_return(google)
+
+      allow(azure).to receive(:translate).and_raise(TranslationService::QuotaExceededError)
+      allow(google).to receive(:translate).and_raise(TranslationService::QuotaExceededError)
+
+      expect {
+        TranslationService.attempt_translation_with_fallback('Hello', to: 'fr', format: :text)
+      }.to raise_error(TranslationService::AllProvidersExhaustedError)
     end
   end
 end
