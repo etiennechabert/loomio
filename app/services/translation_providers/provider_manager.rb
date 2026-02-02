@@ -10,18 +10,20 @@ module TranslationProviders
     end
 
     def mark_provider_exhausted(provider)
-      @exhausted_providers[provider.class.provider_name] = Date.current.to_s
+      provider_name = provider.class.name.demodulize.downcase
+      @exhausted_providers[provider_name] = Date.current.to_s
       Rails.logger.warn "#{provider.class.name} quota exhausted for #{Date.current}"
     end
 
     def provider_exhausted?(provider)
-      @exhausted_providers[provider.class.provider_name] == Date.current.to_s
+      provider_name = provider.class.name.demodulize.downcase
+      @exhausted_providers[provider_name] == Date.current.to_s
     end
 
     private
 
     def configured_providers
-      provider_names = ENV['TRANSLATION_PROVIDERS']&.split(',')&.map(&:strip) || %w[google azure]
+      provider_names = ENV['TRANSLATION_PROVIDERS']&.split(',')&.map(&:strip) || %w[azure google]
 
       provider_names.map do |name|
         klass = "TranslationProviders::#{name.classify}".constantize
