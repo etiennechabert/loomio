@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe Api::B2::GroupsController do
-  let(:group) { create :group }
+  let(:group) { create :group, group_privacy: 'secret' }
   let(:user) { group.admins.first }
   let(:another_user) { create :user }
 
@@ -22,7 +22,7 @@ describe Api::B2::GroupsController do
       expect(json['groups'][0]['key']).to eq group.key
     end
 
-    it 'missing permission' do
+    it 'non-member cannot see secret group' do
       another_user.update(api_key: 'def456')
       get :show, params: { id: group.id, api_key: another_user.api_key }
       expect(response.status).to eq 403
@@ -45,7 +45,7 @@ describe Api::B2::GroupsController do
       expect(json['groups'].map { |g| g['id'] }).to include subgroup.id
     end
 
-    it 'missing permission' do
+    it 'non-member cannot list subgroups of secret group' do
       another_user.update(api_key: 'def456')
       get :subgroups, params: { id: group.id, api_key: another_user.api_key }
       expect(response.status).to eq 403
@@ -70,7 +70,7 @@ describe Api::B2::GroupsController do
       expect(json['discussions'].map { |d| d['id'] }).to include discussion.id
     end
 
-    it 'missing permission' do
+    it 'non-member cannot list discussions of secret group' do
       another_user.update(api_key: 'def456')
       get :discussions, params: { id: group.id, api_key: another_user.api_key }
       expect(response.status).to eq 403
