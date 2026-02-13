@@ -50,6 +50,13 @@ Rails.application.routes.draw do
       resources :polls, only: [:create, :show]
       resources :memberships, only: [:index, :create]
       resources :comments, only: [:create]
+      resources :groups, only: [:show] do
+        member do
+          get :subgroups
+          get :discussions
+        end
+      end
+      resources :events, only: [:index]
     end
 
     namespace :b3, only: [] do
